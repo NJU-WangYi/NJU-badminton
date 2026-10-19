@@ -1,0 +1,6 @@
+# 抢场脚本（python wy.py / python -m booking）
+selenium>=4.20
+opencv-python>=4.9
+numpy>=1.26
+Pillow>=10.0
+requests>=2.31
