@@ -20,7 +20,7 @@ CHAOJIYING_CODE_TYPE = 9801
 WAKE_TIME = datetime.time(7, 57)
 SLEEP_TIME = datetime.time(22, 0)
 # 在此时段之外登录完成后，等待到 PAGE_OPEN_TIME 再点击预约入口。
-PAGE_OPEN_TIME = datetime.time(7, 59, 58, 300000)
+PAGE_OPEN_TIME = datetime.time(8, 0, 1)
 PAGE_CLOSE_TIME = datetime.time(22, 0)
 
 SCAN_INTERVAL = 0.01  # 刷新频率（秒）
