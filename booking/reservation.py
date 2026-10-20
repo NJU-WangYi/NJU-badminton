@@ -28,6 +28,18 @@ def _click_first_visible(driver, elements):
             break
 
 
+def entry_click_plan(now):
+    """
+    决定何时点击预约入口：
+    "now"（处于开放时段）、"today"（今天尚未开放）、"tomorrow"（今天已关闭）。
+    """
+    if config.PAGE_OPEN_TIME <= now < config.PAGE_CLOSE_TIME:
+        return "now"
+    if now < config.PAGE_OPEN_TIME:
+        return "today"
+    return "tomorrow"
+
+
 def open_badminton_page(driver):
     """从登录后的首页进入场馆系统，并在开放时段内点击羽毛球预约入口。"""
     venue_link = WebDriverWait(driver, 10).until(
@@ -40,18 +52,19 @@ def open_badminton_page(driver):
     )
     _js_click(driver, venue_home_entry)
 
-    page_current_time = datetime.datetime.now().time()
-
     print(">>> 正在定位羽毛球预约入口...")
     reservation_entry = WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.XPATH, config.RESERVATION_ENTRY_XPATH))
     )
 
-    if config.PAGE_OPEN_TIME <= page_current_time < config.PAGE_CLOSE_TIME:
+    # 入口出现后再读时间：定位入口可能耗时数秒，提前读取会误判为“未到开放时间”。
+    plan = entry_click_plan(datetime.datetime.now().time())
+    if plan == "now":
         print(">>> 登录已完成，当前处于允许时段，立即点击羽毛球预约入口...")
     else:
         print(f">>> 登录已完成，等待至 {format_clock(config.PAGE_OPEN_TIME)} 点击羽毛球预约入口...")
-        wait_until(config.PAGE_OPEN_TIME)
+        # 今天尚未开放时只等今天：等待期间时间恰好越过开放时刻，就立即点击而不是顺延一天。
+        wait_until(config.PAGE_OPEN_TIME, roll_over=(plan == "tomorrow"))
 
     _js_click(driver, reservation_entry)
     print(">>> 已点击羽毛球预约入口。")

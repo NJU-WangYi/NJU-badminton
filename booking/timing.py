@@ -28,10 +28,12 @@ def wait_for_target_time(
         target_hour,
         target_minute,
         target_second=0,
-        target_microsecond=0
+        target_microsecond=0,
+        roll_over=True
 ):
     """
-    等待直到指定的时间 (默认今天，如果已过则等明天)
+    等待直到今天的指定时间。
+    已过该时间时：roll_over=True 顺延到明天同一时间；False 直接返回（视为已到点）。
     """
     now = datetime.datetime.now()
     target_time = now.replace(
@@ -41,6 +43,10 @@ def wait_for_target_time(
         microsecond=target_microsecond
     )
     target_clock = format_clock(target_time.time())
+
+    if now >= target_time and not roll_over:
+        print(f">>> ℹ️ 已到达 {target_clock}，立即继续。")
+        return
 
     if now >= target_time:
         print(
@@ -64,6 +70,8 @@ def wait_for_target_time(
         time.sleep(min(1, max(0.01, left_seconds)))
 
 
-def wait_until(clock):
-    """等待到给定的 datetime.time（今天已过则等明天）。"""
-    wait_for_target_time(clock.hour, clock.minute, clock.second, clock.microsecond)
+def wait_until(clock, roll_over=True):
+    """等待到给定的 datetime.time；今天已过时按 roll_over 决定顺延到明天还是立即返回。"""
+    wait_for_target_time(
+        clock.hour, clock.minute, clock.second, clock.microsecond, roll_over=roll_over
+    )
